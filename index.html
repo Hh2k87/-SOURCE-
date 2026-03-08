@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Quản lí tài khoản</title>
+
+<style>
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont}
+body{margin:0;background:#f2f4f8;transition:.3s}
+.dark{background:#111;color:#fff}
+
+header{padding:18px;font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px}
+.menuBtn{font-size:26px;cursor:pointer}
+
+.container{padding:15px}
+
+.card{background:#fff;padding:18px;border-radius:20px;margin-bottom:15px;box-shadow:0 6px 15px rgba(0,0,0,.1)}
+.dark .card{background:#1c1c1c}
+
+.title{font-size:22px;font-weight:700;margin-bottom:10px}
+
+input{width:100%;padding:10px;border-radius:12px;border:1px solid #ddd;margin-top:6px}
+
+.select{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.select button{padding:8px 12px;border-radius:14px;border:none;background:#e6e8ed;cursor:pointer;font-weight:600}
+.select button.active{background:#000;color:#fff}
+
+.btnMain{margin-top:10px;padding:12px;width:100%;border-radius:14px;border:none;background:#000;color:#fff;font-weight:700;cursor:pointer}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#e9ebf0;padding:15px;border-radius:15px;text-align:center;font-weight:700}
+.dark .stat{background:#2b2b2b}
+
+.acc{background:#fff;padding:15px;border-radius:15px;margin-bottom:10px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+.dark .acc{background:#1f1f1f}
+
+.btnRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.smallBtn{padding:8px 12px;border:none;border-radius:10px;cursor:pointer;font-weight:600}
+.blue{background:#4a83ff;color:#fff}
+.green{background:#1dbf73;color:#fff}
+.red{background:#ff4c4c;color:#fff}
+
+.menu{
+position:fixed;
+top:0;
+left:-270px;
+width:260px;
+height:100%;
+background:#fff;
+padding:20px;
+transition:.35s;
+z-index:999;
+box-shadow:4px 0 25px rgba(0,0,0,.2)
+}
+
+.dark .menu{background:#1c1c1c}
+
+.menu.show{left:0}
+
+.menu h2{font-size:28px;margin-bottom:20px}
+
+.menu input{margin-bottom:10px}
+
+.menu button{
+width:100%;
+padding:14px;
+border-radius:20px;
+border:none;
+background:#000;
+color:#fff;
+font-weight:700;
+margin-top:10px
+}
+
+.toast{
+position:fixed;
+bottom:30px;
+left:50%;
+transform:translateX(-50%);
+background:#000;
+color:#fff;
+padding:10px 18px;
+border-radius:12px;
+opacity:0;
+transition:.3s
+}
+
+.toast.show{opacity:1}
+
+.popup{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.35);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:1000
+}
+
+.box{
+background:#fff;
+width:90%;
+max-width:420px;
+padding:20px;
+border-radius:25px;
+text-align:center
+}
+
+.dark .box{background:#1c1c1c}
+
+.box h3{margin-top:0;font-size:20px}
+
+.box input{
+width:100%;
+padding:12px;
+border-radius:14px;
+border:1px solid #ddd;
+margin-top:10px
+}
+
+.boxButtons{
+display:flex;
+justify-content:center;
+gap:20px;
+margin-top:15px
+}
+
+.boxButtons button{
+padding:8px 18px;
+border:none;
+border-radius:14px;
+background:#e5e7eb;
+font-weight:600
+}
+
+.dark .boxButtons button{background:#333;color:#fff}
+</style>
+</head>
+
+<body>
+
+<div class="menu" id="menu">
+<h2>Menu</h2>
+
+<input type="file" id="txtFile">
+<button onclick="importTXT()">Nhập tài khoản</button>
+
+<button onclick="changeBG()">Đổi hình nền</button>
+
+<button onclick="toggleDark()">Dark mode</button>
+
+<button onclick="closeMenu()">Đóng</button>
+</div>
+
+<header>
+<span class="menuBtn" onclick="openMenu()">☰</span>
+Quản lí tài khoản
+</header>
+
+<div class="container">
+
+<div class="card">
+<div class="title">Dashboard</div>
+</div>
+
+<div class="card">
+
+<div class="title">Thêm tài khoản</div>
+
+Login
+<div class="select" id="login">
+<button class="active">Facebook</button>
+<button>Google</button>
+<button>X</button>
+<button>Garena</button>
+</div>
+
+Mail
+<input id="mail">
+
+Mật khẩu
+<input id="pass">
+
+Rank
+<div class="select" id="rank">
+<button class="active">Vàng</button>
+<button>Bạch Kim</button>
+<button>Kim Cương</button>
+<button>Cao Thủ</button>
+<button onclick="customRank()">+</button>
+</div>
+
+Trạng thái
+<div class="select" id="status">
+<button class="active">🟢 Chưa bán</button>
+<button>🔴 Đã bán</button>
+</div>
+
+<button class="btnMain" onclick="addAcc()">+ Thêm tài khoản</button>
+
+</div>
+
+<div class="card">
+
+<div class="title">Thống kê</div>
+
+<div class="stats">
+<div class="stat">Tổng<br><span id="total">0</span></div>
+<div class="stat">Đã bán<br><span id="sold">0</span></div>
+<div class="stat">Chưa bán<br><span id="unsold">0</span></div>
+<div class="stat">Giờ<br><span id="time"></span></div>
+</div>
+
+</div>
+
+<div class="card">
+<div class="title">Danh sách tài khoản</div>
+<div id="list"></div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="popup" id="confirm">
+<div class="box">
+<h3>Bạn muốn xóa acc?</h3>
+<div class="boxButtons">
+<button onclick="deleteAcc()">Có</button>
+<button onclick="closeConfirm()">Không</button>
+</div>
+</div>
+</div>
+
+<div class="popup" id="rankBox">
+<div class="box">
+<h3>Nhập rank</h3>
+<input id="rankInput">
+<div class="boxButtons">
+<button onclick="saveRank()">OK</button>
+<button onclick="closeRank()">Hủy</button>
+</div>
+</div>
+</div>
+
+<script>
+
+let accs=[]
+let deleteIndex=null
+
+// load data
+let saved=localStorage.getItem("accData")
+if(saved){
+accs=JSON.parse(saved)
+}
+
+function saveData(){
+localStorage.setItem("accData",JSON.stringify(accs))
+}
+
+function toast(t){
+let el=document.getElementById("toast")
+el.innerText=t
+el.classList.add("show")
+setTimeout(()=>el.classList.remove("show"),2000)
+}
+
+document.querySelectorAll(".select").forEach(g=>{
+g.querySelectorAll("button").forEach(b=>{
+if(b.innerText!="+"){
+b.onclick=()=>{
+g.querySelectorAll("button").forEach(x=>x.classList.remove("active"))
+b.classList.add("active")
+}
+}
+})
+})
+
+function addAcc(){
+
+let login=document.querySelector("#login .active").innerText
+let mail=document.getElementById("mail").value
+let pass=document.getElementById("pass").value
+let rank=document.querySelector("#rank .active").innerText
+let status=document.querySelector("#status .active").innerText
+
+if(!mail||!pass){
+toast("Nhập mail và pass")
+return
+}
+
+accs.push({login,mail,pass,rank,status})
+
+saveData()
+
+render()
+
+toast("Đã thêm acc")
+
+}
+
+function render(){
+
+let html=""
+let sold=0
+let unsold=0
+
+accs.forEach((a,i)=>{
+
+if(a.status.includes("Đã"))sold++
+else unsold++
+
+html+=`
+<div class="acc">
+<b>Login:</b> ${a.login}<br>
+<b>Mail:</b> ${a.mail}<br>
+<b>Pass:</b> ${a.pass}<br>
+<b>Rank:</b> ${a.rank}<br>
+<b>Status:</b> ${a.status}
+
+<div class="btnRow">
+<button class="smallBtn blue" onclick="copyMail('${a.mail}')">Copy mail</button>
+<button class="smallBtn blue" onclick="copyPass('${a.pass}')">Copy pass</button>
+<button class="smallBtn green" onclick="toggleStatus(${i})">Đổi status</button>
+<button class="smallBtn red" onclick="askDelete(${i})">Xóa</button>
+</div>
+</div>
+`
+})
+
+document.getElementById("list").innerHTML=html
+document.getElementById("total").innerText=accs.length
+document.getElementById("sold").innerText=sold
+document.getElementById("unsold").innerText=unsold
+
+saveData()
+
+}
+
+function copyMail(m){
+navigator.clipboard.writeText(m)
+toast("Đã copy mail")
+}
+
+function copyPass(p){
+navigator.clipboard.writeText(p)
+toast("Đã copy pass")
+}
+
+function toggleStatus(i){
+
+if(accs[i].status.includes("Chưa")){
+accs[i].status="🔴 Đã bán"
+toast("Đã đổi sang đã bán")
+}else{
+accs[i].status="🟢 Chưa bán"
+toast("Đã đổi sang chưa bán")
+}
+
+render()
+
+}
+
+function askDelete(i){
+deleteIndex=i
+document.getElementById("confirm").style.display="flex"
+}
+
+function deleteAcc(){
+
+accs.splice(deleteIndex,1)
+
+render()
+
+closeConfirm()
+
+toast("Đã xóa acc")
+
+}
+
+function closeConfirm(){
+document.getElementById("confirm").style.display="none"
+}
+
+function openMenu(){
+document.getElementById("menu").classList.add("show")
+}
+
+function closeMenu(){
+document.getElementById("menu").classList.remove("show")
+}
+
+function toggleDark(){
+document.body.classList.toggle("dark")
+}
+
+function changeBG(){
+
+let input=document.createElement("input")
+
+input.type="file"
+
+input.onchange=e=>{
+
+let file=e.target.files[0]
+
+let reader=new FileReader()
+
+reader.onload=()=>{
+
+document.body.style.background=`url(${reader.result})`
+
+document.body.style.backgroundSize="cover"
+
+toast("Đã đổi hình nền")
+
+}
+
+reader.readAsDataURL(file)
+
+}
+
+input.click()
+
+}
+
+function importTXT(){
+
+let file=document.getElementById("txtFile").files[0]
+
+if(!file)return
+
+let reader=new FileReader()
+
+reader.onload=e=>{
+
+let lines=e.target.result.split("\n")
+
+lines.forEach(l=>{
+
+let p=l.split("|")
+
+if(p.length>=2){
+
+accs.push({
+login:"TXT",
+mail:p[0],
+pass:p[1],
+rank:"",
+status:"🟢 Chưa bán"
+})
+
+}
+
+})
+
+render()
+
+toast("Đã nhập file TXT")
+
+}
+
+reader.readAsText(file)
+
+}
+
+function customRank(){
+document.getElementById("rankBox").style.display="flex"
+}
+
+function closeRank(){
+document.getElementById("rankBox").style.display="none"
+}
+
+function saveRank(){
+
+let r=document.getElementById("rankInput").value
+
+if(!r)return
+
+let btn=document.createElement("button")
+
+btn.innerText=r
+
+btn.classList.add("active")
+
+document.querySelectorAll("#rank button").forEach(x=>x.classList.remove("active"))
+
+document.getElementById("rank").appendChild(btn)
+
+btn.onclick=()=>{
+
+document.querySelectorAll("#rank button").forEach(x=>x.classList.remove("active"))
+
+btn.classList.add("active")
+
+}
+
+closeRank()
+
+}
+
+setInterval(()=>{
+document.getElementById("time").innerText=new Date().toLocaleTimeString()
+},1000)
+
+render()
+
+</script>
+
+</body>
+</html>
